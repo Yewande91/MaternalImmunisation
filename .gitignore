@@ -1,0 +1,21 @@
+# RStudio files
+.Rproj.user
+
+# History files
+.Rhistory
+
+# Session Data files
+.RData
+
+# User-specific files
+.Ruserdata
+
+# Raw data
+/data-raw/*.xls*
+/data-raw/*.csv
+
+# Processed data
+/data/*.xls*
+/data/*.csv
+/data/*.rda
+
