@@ -1,6 +1,12 @@
+#load magrittr
+library(magrittr)
+
+#load lubridate
+library(lubridate)
 
 #load tidyverse
 library(tidyverse)
+
 
 #find file names with a data-raw/Matimms_Data_extension
 fileNames<-Sys.glob("data-raw/Matimms_Data_*.csv")
@@ -11,7 +17,7 @@ load_data_files<-function(fN){
   {loadfiles<-read_csv(x,
                        col_types=cols(
                          'Patient key'= col_integer(),
-                         'Age at start of influenza season' = col_integer(),
+                         'Age' = col_integer(),
                          'Ethnicity' = col_character(),
                          'Diabetes' = col_date(format = ""),
                          'Kidney disease' =	col_date(format = ""),
