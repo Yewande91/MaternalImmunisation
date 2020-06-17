@@ -11,11 +11,11 @@
 .Ruserdata
 
 # Raw data
-/data-raw/*.xls*
-/data-raw/*.csv
+#/data-raw/*.xls*
+#/data-raw/*.csv
 
 # Processed data
-/data/*.xls*
-/data/*.csv
-/data/*.rda
+#/data/*.xls*
+#/data/*.csv
+#/data/*.rda
 
