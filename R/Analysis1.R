@@ -38,16 +38,5 @@ df2v5<- df2v5 %>%
 df2v5 <- df2v5 %>% dplyr::mutate(flushotmatch = replace_na(flushotmatch, 0))
 
 
+del<- table(df2v5$Ethnicity, df2v5$flushotmatch)
 
-
-
-#del <- df2v5 %>% 
-#    group_by(Ethnicity) %>%
-#    count(flushotmatch)
-
-
-#%>%
-#    mutate(prop = n / sum(n))
-#     %>%
-  #   count (flushotmatch)
-  #   mutate(prop = n / sum(n))
