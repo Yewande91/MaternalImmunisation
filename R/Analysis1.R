@@ -45,17 +45,16 @@ test2<- df2v5 %>% group_by(flushotmatch, Ethnicity) %>%
   pivot_wider(names_from = flushotmatch, values_from = freq, values_fill = list(freq = 0)) 
 
 
-
 test2 <-
   mutate(test2,
          Sum = `1` + `0`)
 
-test2 =
+test2 <-
   mutate(test2,
          Prop = `1` / `Sum`,
-         low.ci = apply(test[c("1", "0")], 1,
+         low.ci = apply(test2[c("1", "0")], 1,
                         function(y) binom.test(y['1'], y['0'])$ conf.int[1]),
-         high.ci = apply(test[c("1", "0")], 1,
+         high.ci = apply(test2[c("1", "0")], 1,
                          function(y) binom.test(y['1'], y['0'])$ conf.int[2])
   )
 
@@ -85,6 +84,21 @@ ggplot(test2,
   theme(axis.title.y = element_text(vjust= 1.8)) +
   theme(axis.title.x = element_text(vjust= -0.5))
 
+
+
+#is there an association with age group and vaccine uptake
+# This test is appropriate only when one variable has two levels and the other variable is ordinal
+# for interpretation see:
+#https://www.rdocumentation.org/packages/DescTools/versions/0.99.36/topics/CochranArmitageTest
+
+test4<-table(df2v5$age_groups, df2v5$flushotmatch)
+CochranArmitageTest(test4)
+
+#or
+
+prop.trend.test(test4[,1], apply(test4,1, sum))
+
+
 #chi square test trend - is there association between year and vaccination uptake
 # This test is appropriate only when one variable has two levels and the other variable is ordinal
 # for interpretation see:
@@ -94,6 +108,7 @@ ggplot(test2,
 test3<-table(df2v5$fluseason, df2v5$flushotmatch)
 CochranArmitageTest(test3)
 
-or
+#or
+
 prop.trend.test(test3[,1], apply(test3,1, sum))
 
