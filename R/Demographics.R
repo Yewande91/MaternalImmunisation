@@ -2,15 +2,6 @@
 #through 2019‒2020 Influenza Seasons 
 
 
-#load magrittr
-library(magrittr)
-
-#load lubridate
-library(lubridate)
-
-#load tidyverse
-library(tidyverse)
-
 #load DescTools
 library(DescTools)
 
@@ -69,7 +60,7 @@ df2v4<- df2v4 %>%
 library(table1)
 
 
-table1(~ Age + Ethnicity + CCG + age_groups| fluseason  , data=df2v4, overall="Total")
+table1(~ Ethnicity + CCG + age_groups| fluseason  , data=df2v4, overall="Total")
 
 
 
