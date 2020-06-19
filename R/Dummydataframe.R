@@ -7,6 +7,7 @@ df3<-data_frames[[3]]
 
 df3 <- tibble::rowid_to_column(df3, "ID")
 
+
 df2v5<- df2v4 %>%
   left_join(select(df3,`ID`,`Flushot`),by = "ID")
 
@@ -14,7 +15,7 @@ df2v5<- df2v4 %>%
 
 df2v5 <- df2v5 %>%
   select(ID, `Patient key`, Age , Ethnicity, Diabetes,`Kidney disease`, CCG, Pregstart, Pregend, fluseason,
-         overlap, Flushot) %>%
+         overlap, Flushot, age_groups) %>%
   rowwise() %>%
   mutate (
     flushotseason = case_when (
