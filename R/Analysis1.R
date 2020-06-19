@@ -34,9 +34,41 @@ df2v5 <- df2v5 %>%
 df2v5<- df2v5 %>%
   mutate(flushotmatch = if_else(flushotseason == fluseason , 1,0))
 
-#replace na with 0 (what do we do with missing data)
+#replace na with 0 (what do we do with missing data???)
 df2v5 <- df2v5 %>% dplyr::mutate(flushotmatch = replace_na(flushotmatch, 0))
 
 
-del<- table(df2v5$Ethnicity, df2v5$flushotmatch)
+#creates dataframe cross tabulation
+del<- df2v5 %>% group_by(flushotmatch, Ethnicity) %>% 
+  summarise(freq = n()) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = flushotmatch, values_from = freq, values_fill = list(freq = 0)) 
 
+#create table for chisq
+del2<-table(df2v5$Ethnicity,df2v5$flushotmatch)
+
+#chi square test example (repeat for other variables)
+chisq.test(del2)
+
+ 
+# for interpretation and worked example
+#http://www.biostathandbook.com/chiind.html
+#https://rcompanion.org/rcompanion/b_05.html
+#https://mran.microsoft.com/snapshot/2016-10-12/web/packages/fifer/fifer.pdf
+
+#if chi square test is significant do post hoc test with bonferroni correction
+library(rcompanion)
+
+pairwiseNominalIndependence(del2,
+                            fisher = FALSE,
+                            gtest  = FALSE,
+                            chisq  = TRUE,
+                            method = "bonferroni")
+
+or
+
+library(fifer)
+chisq.post.hoc(del2, test = c("fisher.test"),
+                         popsInRows = TRUE,
+                         control = c("bonferroni"),
+                         digits = 4)
