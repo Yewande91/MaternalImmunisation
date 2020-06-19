@@ -69,7 +69,7 @@ df2v4<- df2v4 %>%
 library(table1)
 
 
-table1(~ Age + Ethnicity + CCG | fluseason  , data=df2v4, overall="Total")
+table1(~ Age + Ethnicity + CCG + age_groups| fluseason  , data=df2v4, overall="Total")
 
 
 
