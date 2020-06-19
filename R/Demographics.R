@@ -2,7 +2,16 @@
 #through 2019‒2020 Influenza Seasons 
 
 
+#load magrittr
+library(magrittr)
+
+#load lubridate
+library(lubridate)
+
+#load tidyverse
 library(tidyverse)
+
+#load DescTools
 library(DescTools)
 
 
@@ -46,6 +55,14 @@ df2v4<- df2
 df2v4 <- tibble::rowid_to_column(df2v4, "ID")
 
 df2v4<- left_join(df2v4,df2v3,by = "ID")
+
+
+#categorise age column
+
+agelabelspop <- c("15-24","25-34","35-44","45+")
+agebreakspop <- c(15,25,35,45,59)
+df2v4<- df2v4 %>% 
+  dplyr::mutate(age_groups = cut(Age, breaks = agebreakspop, right = FALSE, labels = agelabelspop))
 
 
 #Demographics table
