@@ -1,74 +1,99 @@
 
-#create vaccination coverage table stratified by season 
-df3<-data_frames[[3]]
+#Purpose of this script is to show procedure for running run chi square tests 
+#Here ethnicity is a categorical nominal variable and flushotmatch is categorical
+#binary variable (equivalent to vaccinated yes=1, no=0)
 
 
-df3 <- tibble::rowid_to_column(df3, "ID")
+#Create table for chisquare test
+test1<-table(df2v5$Ethnicity,df2v5$flushotmatch)
 
-df2v5<- df2v4 %>%
-  left_join(select(df3,`ID`,`Flushot`),by = "ID")
+#run chisquare test
+chisq.test(test1)
 
-
-
-df2v5 <- df2v5 %>%
- select(ID, `Patient key`, Age , Ethnicity, Diabetes,`Kidney disease`, CCG, Pregstart, Pregend, fluseason,
-        overlap, Flushot) %>%
- rowwise() %>%
-  mutate (
-    flushotseason = case_when (
-        c(Flushot) %overlaps% as.Date(c("2010-09-01", "2011-03-31")) ~ '2010-2011',
-        c(Flushot) %overlaps% as.Date(c("2011-09-01", "2012-03-31")) ~ '2011-2012',
-        c(Flushot) %overlaps% as.Date(c("2012-09-01", "2013-03-31")) ~ '2012-2013',
-        c(Flushot) %overlaps% as.Date(c("2013-09-01", "2014-03-31")) ~ '2013-2014',
-        c(Flushot) %overlaps% as.Date(c("2015-09-01", "2016-03-31")) ~ '2015-2016',
-        c(Flushot) %overlaps% as.Date(c("2016-09-01", "2017-03-31")) ~ '2016-2017',
-        c(Flushot) %overlaps% as.Date(c("2017-09-01", "2018-03-31")) ~ '2017-2018',
-        c(Flushot) %overlaps% as.Date(c("2018-09-01", "2019-03-31")) ~ '2018-2019',
-        c(Flushot) %overlaps% as.Date(c("2019-09-01", "2020-03-31")) ~ '2019-2020'
-
-    )
-  )
-
-
-#does fluseason and flushotseason match
-df2v5<- df2v5 %>%
-  mutate(flushotmatch = if_else(flushotseason == fluseason , 1,0))
-
-#replace na with 0 (what do we do with missing data???)
-df2v5 <- df2v5 %>% dplyr::mutate(flushotmatch = replace_na(flushotmatch, 0))
-
-
-#creates dataframe cross tabulation
-del<- df2v5 %>% group_by(flushotmatch, Ethnicity) %>% 
-  summarise(freq = n()) %>% 
-  ungroup() %>% 
-  pivot_wider(names_from = flushotmatch, values_from = freq, values_fill = list(freq = 0)) 
-
-#create table for chisq
-del2<-table(df2v5$Ethnicity,df2v5$flushotmatch)
-
-#chi square test example (repeat for other variables)
-chisq.test(del2)
-
- 
-# for interpretation and worked example
+# for interpretation and worked examples
 #http://www.biostathandbook.com/chiind.html
 #https://rcompanion.org/rcompanion/b_05.html
 #https://mran.microsoft.com/snapshot/2016-10-12/web/packages/fifer/fifer.pdf
 
-#if chi square test is significant do post hoc test with bonferroni correction
+#if chi square test is significant, then do pairwise comparisons
+#chisquare post hoc tests with bonferroni correction
 library(rcompanion)
 
-pairwiseNominalIndependence(del2,
+pairwiseNominalIndependence(test1,
                             fisher = FALSE,
                             gtest  = FALSE,
                             chisq  = TRUE,
                             method = "bonferroni")
 
-or
+#or
 
 library(fifer)
-chisq.post.hoc(del2, test = c("fisher.test"),
+chisq.post.hoc(test1, test = c("fisher.test"),
                          popsInRows = TRUE,
                          control = c("bonferroni"),
                          digits = 4)
+
+##Create barchart y-axis is the vaccination uptake proportion and x-axis is ethnicity
+# Add sums and confidence intervals to del (i.e. dataframe version of del2)
+# Need help explaining how function that calculates confidence intervals works???
+
+
+#creates dataframe version of test1 called test2
+test2<- df2v5 %>% group_by(flushotmatch, Ethnicity) %>% 
+  summarise(freq = n()) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = flushotmatch, values_from = freq, values_fill = list(freq = 0)) 
+
+
+
+test2 <-
+  mutate(test2,
+         Sum = `1` + `0`)
+
+test2 =
+  mutate(test2,
+         Prop = `1` / `Sum`,
+         low.ci = apply(test[c("1", "0")], 1,
+                        function(y) binom.test(y['1'], y['0'])$ conf.int[1]),
+         high.ci = apply(test[c("1", "0")], 1,
+                         function(y) binom.test(y['1'], y['0'])$ conf.int[2])
+  )
+
+test2
+
+
+### Plot (Bar chart plot)
+
+library(ggplot2)
+
+ggplot(test2,
+       aes(x=Ethnicity, y=Prop)) +
+  geom_bar(stat="identity", fill="gray40",
+           colour="black", size=0.5,
+           width=0.7) +
+  geom_errorbar(aes(ymax=high.ci, ymin=low.ci),
+                width=0.2, size=0.5, color="black") +
+  xlab("Ethnicity") +
+  ylab("vaccine uptake proportion") +
+  scale_x_discrete(labels=c("Black", "Mixed",
+                            "Other","White")) +
+  ## ggtitle("Main title") +
+  theme(axis.title=element_text(size=14, color="black",
+                                face="bold", vjust=3)) +
+  theme(axis.text = element_text(size=12, color = "gray25",
+                                 face="bold")) +
+  theme(axis.title.y = element_text(vjust= 1.8)) +
+  theme(axis.title.x = element_text(vjust= -0.5))
+
+#chi square test trend - is there association between year and vaccination uptake
+# This test is appropriate only when one variable has two levels and the other variable is ordinal
+# for interpretation see:
+#https://www.rdocumentation.org/packages/DescTools/versions/0.99.36/topics/CochranArmitageTest
+
+
+test3<-table(df2v5$fluseason, df2v5$flushotmatch)
+CochranArmitageTest(test3)
+
+or
+prop.trend.test(test3[,1], apply(test3,1, sum))
+
