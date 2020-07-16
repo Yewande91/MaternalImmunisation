@@ -1,0 +1,28 @@
+---
+title: "Estimating number of pregnancies from ONS data"
+author: "ARC NWL Information Intelligence Theme"
+date: "09/07/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Let $P^{d}_{tot}$ be the total number of pregnancies ending with delivery in a given population, and $D_{tot}$ be the total number of births including live and stilbirths from these pregnancies. Let $L_{tot}$ be the number of live births and $S_{tot}$ be the number of stillbirths so that $D_{tot} = L_{tot} + S_{tot}$.
+
+Let $P^{d}_{1}$ be the number of single pregnancies ending in delivery, $P^{d}_{2}$ the number of twin pregnancies ending in delivery, etc. Similarly let $D_{1}$ be the number of deliveries resulting from single pregnancies, $D_{2}$ from twin pregnancies, etc.
+
+Note that $D_{m} = m \times P^{d}_{m}$.
+
+Assume that there are no pregnancies of multiplicity greater than four.
+
+Then $D_{tot} = D_{1} + D_{2} + D_{3} + D_{4}$.
+
+Combining the last two equations, we get $D_{tot} = 1 \times P^{d}_{1} + 2 \times P^{d}_{2} + 3 \times P^{d}_{3} + 4 \times P^{d}_{4}$.
+
+Now divide this by $P^{d}_{tot}$ to get: $\frac{D_{tot}}{P^{d}_{tot}} = \frac{P^{d}_{1}}{P^{d}_{tot}} + 2\times\frac{P^{d}_{2}}{P^{d}_{tot}} + 3\times\frac{P^{d}_{3}}{P^{d}_{tot}} + 4\times\frac{P^{d}_{4}}{P^{d}_{tot}}$.
+
+Thus if we can estimate the relative frequencies of multiple pregnancies $\frac{P^{d}_{m}}{P^{d}_{tot}}$, we can estimate the ratio $\frac{D_{tot}}{P^{d}_{tot}}$. If we then know $D_{tot}$ we have an estimate of $P^{d}_{tot}$.
+
+Then if we also know the fraction of all pregnancies that end in delivery, we can work out an estimate of $P_{tot}$, the total number of pregnancies in the population.
