@@ -65,7 +65,7 @@ demographics<- demographics %>%
 library(table1) 
 
 
-table1(~ age_groups + ethnicity + local_authority | fluseason, data=demographics, overall="Total")
+table1(~ age_groups + ethnicity | fluseason, data=demographics, overall="Total")
 
 
 
